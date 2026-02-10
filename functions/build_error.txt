@@ -1,0 +1,5 @@
+﻿
+> build
+> tsc
+
+src/index.ts(10,5): error TS2322: Type '"2024-12-18.acacia"' is not assignable to type '"2023-10-16"'.

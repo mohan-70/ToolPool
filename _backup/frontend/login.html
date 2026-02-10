@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - ToolPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script defer src="/__/firebase/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/auth.js"></script>
+</head>
+<body>
+    <div class="form-card" style="max-width: 350px; margin: 100px auto; text-align: center;">
+        <h2>Login to ToolPool</h2>
+        <input type="email" id="login-email" placeholder="Email" required><br><br>
+        <input type="password" id="login-password" placeholder="Password" required><br><br>
+        <button class="btn-primary" onclick="handleLogin()">Login</button>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            login(email, pass); // Calls login in auth.js
+        }
+    </script>
+</body>
+</html>

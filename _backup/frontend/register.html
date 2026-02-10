@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - ToolPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script defer src="/__/firebase/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/auth.js"></script>
+</head>
+<body>
+    <div class="form-card" style="max-width: 350px; margin: 100px auto; text-align: center;">
+        <h2>Create Account</h2>
+        <input type="text" id="reg-name" placeholder="Full Name" required><br><br>
+        <input type="email" id="reg-email" placeholder="Email" required><br><br>
+        <input type="password" id="reg-password" placeholder="Password" required><br><br>
+        <button class="btn-primary" onclick="handleRegister()">Sign Up</button>
+        <p>Already have an account? <a href="login.html">Login</a></p>
+    </div>
+
+    <script>
+        function handleRegister() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            register(email, pass, name); // Calls register in auth.js
+        }
+    </script>
+</body>
+</html>

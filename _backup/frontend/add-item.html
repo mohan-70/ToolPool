@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Tool - ToolPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script defer src="/__/firebase/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/items.js"></script>
+    <script defer src="js/auth.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo" style="font-weight: bold; color: #ffa100; text-decoration: none;">ToolPool</a>
+            <a href="index.html" style="text-decoration: none; color: #333;">Back to Home</a>
+        </div>
+    </nav>
+
+    <div class="form-card" style="max-width: 450px; margin: 50px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 0; color: #333;">List a New Tool</h2>
+        
+        <label style="display:block; margin-bottom: 5px; font-weight: bold;">Tool Name</label>
+        <input type="text" id="item-name" placeholder="e.g. Electric Drill" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px;">
+        
+        <label style="display:block; margin-bottom: 5px; font-weight: bold;">Category</label>
+        <select id="item-category" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px;">
+            <option value="" disabled selected>Select a category</option>
+            <option value="power-tools">Power Tools</option>
+            <option value="gardening">Gardening</option>
+            <option value="cleaning">Cleaning</option>
+            <option value="painting">Painting</option>
+        </select>
+        
+        <label style="display:block; margin-bottom: 5px; font-weight: bold;">Description</label>
+        <textarea id="item-desc" placeholder="Condition, battery status, etc." style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; height: 80px;"></textarea>
+        
+        <label style="display:block; margin-bottom: 5px; font-weight: bold;">Price Per Day ($)</label>
+        <input type="number" id="item-price" placeholder="15" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px;">
+        
+        <button class="btn-primary" onclick="submitItem()" style="width:100%; padding:12px; background: #ffa100; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Post Tool</button>
+    </div>
+
+    <script>
+        function submitItem() {
+            const name = document.getElementById("item-name").value;
+            const category = document.getElementById("item-category").value;
+            const desc = document.getElementById("item-desc").value;
+            const price = document.getElementById("item-price").value;
+
+            if (!name || !category || !price) {
+                alert("Please fill in the Name, Category, and Price.");
+                return;
+            }
+
+            // Calls the function in js/items.js
+            addItem(name, desc, price, category);
+        }
+    </script>
+</body>
+</html>

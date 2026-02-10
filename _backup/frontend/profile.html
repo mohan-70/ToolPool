@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - ToolPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script defer src="/__/firebase/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/auth.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">ToolPool</a>
+            <div id="auth-controls">
+                <span id="user-info"></span>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 900px; margin: 40px auto; padding: 20px;">
+        <h1>User Dashboard</h1>
+
+        <section style="margin-bottom: 50px;">
+            <h2>🔔 Borrow Requests for Your Tools</h2>
+            <div id="requests-container" class="grid">
+                <p>Loading requests...</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>🛠️ My Listed Tools</h2>
+            <div id="my-tools-grid" class="grid">
+                <p>Loading your tools...</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                // 1. Fetch Incoming Requests
+                db.collection("requests")
+                    .where("ownerId", "==", user.uid)
+                    .where("status", "==", "pending")
+                    .onSnapshot(snapshot => {
+                        const container = document.getElementById('requests-container');
+                        container.innerHTML = "";
+                        if (snapshot.empty) {
+                            container.innerHTML = "<p>No pending requests.</p>";
+                            return;
+                        }
+                        snapshot.forEach(doc => {
+                            const req = doc.data();
+                            container.innerHTML += `
+                                <div class="card" style="border: 2px solid #ffa100; padding: 15px;">
+                                    <p><strong>${req.borrowerEmail}</strong> wants to borrow <strong>${req.toolName}</strong></p>
+                                    <button onclick="handleRequest('${doc.id}', 'approved')" style="background:green; color:white; border:none; padding:10px; cursor:pointer;">Approve</button>
+                                    <button onclick="handleRequest('${doc.id}', 'rejected')" style="background:red; color:white; border:none; padding:10px; cursor:pointer;">Reject</button>
+                                </div>`;
+                        });
+                    });
+
+                // 2. Fetch User's Tools
+                db.collection("tools").where("ownerId", "==", user.uid)
+                .onSnapshot(snapshot => {
+                    const grid = document.getElementById('my-tools-grid');
+                    grid.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const tool = doc.data();
+                        grid.innerHTML += `
+                            <div class="tool-card">
+                                <h3>${tool.name}</h3>
+                                <p>Status: ${tool.status}</p>
+                                <button onclick="deleteTool('${doc.id}')" style="background:#444; color:white; border:none; padding:5px;">Remove Tool</button>
+                            </div>`;
+                    });
+                });
+            });
+        });
+
+        function handleRequest(id, status) {
+            db.collection("requests").doc(id).update({ status: status })
+            .then(() => alert("Request " + status));
+        }
+
+        function deleteTool(id) {
+            if(confirm("Delete this tool?")) db.collection("tools").doc(id).delete();
+        }
+    </script>
+</body>
+</html>

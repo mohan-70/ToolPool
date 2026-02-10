@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool Details - ToolPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script defer src="/__/firebase/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <script defer src="js/firebase-config.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">ToolPool</a>
+            <a href="index.html">Back to Marketplace</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 800px; margin: 40px auto; padding: 20px;">
+        <div id="tool-info" class="card">
+            <p>Loading tool details...</p>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <h3>User Reviews</h3>
+        <div id="reviews-list">
+            <p>Loading reviews...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const toolId = urlParams.get('id');
+
+            if (!toolId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 1. Fetch Tool Details
+            db.collection("tools").doc(toolId).get().then((doc) => {
+                if (doc.exists) {
+                    const tool = doc.data();
+                    document.getElementById('tool-info').innerHTML = `
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                            <img src="${tool.imageUrl || 'https://via.placeholder.com/300'}" style="width: 300px; border-radius: 8px;">
+                            <div style="flex: 1;">
+                                <h1>${tool.name}</h1>
+                                <p style="color: #ffa100; font-size: 1.2rem;">⭐ ${tool.avgRating ? tool.avgRating.toFixed(1) : 'No ratings'}</p>
+                                <p><strong>Category:</strong> ${tool.category}</p>
+                                <p><strong>Description:</strong> ${tool.description}</p>
+                                <h2 style="color: #2e7d32;">$${tool.pricePerDay}/day</h2>
+                                <button onclick="borrowTool('${doc.id}')" class="btn-secondary" style="padding: 15px 30px;">Request to Borrow</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // 2. Fetch Reviews for this tool
+            db.collection("reviews").where("toolId", "==", toolId).orderBy("timestamp", "desc")
+            .onSnapshot((snapshot) => {
+                const reviewsList = document.getElementById('reviews-list');
+                reviewsList.innerHTML = "";
+
+                if (snapshot.empty) {
+                    reviewsList.innerHTML = "<p>No reviews yet. Be the first to rate this tool!</p>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const rev = doc.data();
+                    reviewsList.innerHTML += `
+                        <div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>${rev.userName}</strong>
+                                <span style="color: #ffa100;">${'⭐'.repeat(rev.rating)}</span>
+                            </div>
+                            <p style="margin: 5px 0 0 0; font-style: italic;">"${rev.comment || 'No comment provided.'}"</p>
+                        </div>
+                    `;
+                });
+            });
+        });
+        
+        function borrowTool(id) {
+            alert("Borrowing logic triggered for: " + id);
+        }
+    </script>
+</body>
+</html>
