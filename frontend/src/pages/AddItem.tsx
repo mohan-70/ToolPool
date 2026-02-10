@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -11,6 +12,7 @@ export const AddItem: React.FC = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -24,18 +26,31 @@ export const AddItem: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setImageFile(file);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
 
         setLoading(true);
         try {
+            let imageUrl = formData.imageUrl;
+
+            if (imageFile) {
+                const storageRef = ref(storage, `tools/${currentUser.uid}/${Date.now()}_${imageFile.name}`);
+                await uploadBytes(storageRef, imageFile);
+                imageUrl = await getDownloadURL(storageRef);
+            }
+
             await addDoc(collection(db, 'tools'), {
                 name: formData.name,
                 description: formData.description,
                 category: formData.category,
                 pricePerDay: Number(formData.pricePerDay),
-                imageUrl: formData.imageUrl,
+                imageUrl,
                 ownerId: currentUser.uid,
                 ownerEmail: currentUser.email,
                 status: 'available',
@@ -107,6 +122,18 @@ export const AddItem: React.FC = () => {
                                 required
                                 placeholder="0.00"
                             />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium">Upload Image (Optional)</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+                                capture="environment"
+                            />
+                            <p className="text-xs text-gray-500">Or enter image URL below</p>
                         </div>
 
                         <Input
